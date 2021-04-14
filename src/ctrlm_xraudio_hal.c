@@ -223,6 +223,41 @@ void xraudio_hal_close(xraudio_hal_obj_t object) {
    obj->obj_config_mic = NULL;
 }
 
+bool xraudio_hal_input_stream_start_set(xraudio_hal_input_obj_t obj, uint32_t start_sample) {
+   if(obj == NULL) {
+      XLOGD_ERROR("NULL obj");
+      return(false);
+   }
+   ctrlm_hal_input_obj_t *input_obj = (ctrlm_hal_input_obj_t *)obj;
+   if(!ctrlm_xraudio_hal_input_obj_is_valid(input_obj)) {
+      XLOGD_ERROR("invalid obj");
+      return(false);
+   }
+   if(input_obj->xraudio_input_stream_start_set == NULL) {
+      return(false);
+   }
+
+   return input_obj->xraudio_input_stream_start_set(start_sample);
+}
+
+bool xraudio_hal_input_keyword_detector_reset(xraudio_hal_input_obj_t obj) {
+   if(obj == NULL) {
+      XLOGD_ERROR("NULL obj");
+      return(false);
+   }
+   ctrlm_hal_input_obj_t *input_obj = (ctrlm_hal_input_obj_t *)obj;
+   if(!ctrlm_xraudio_hal_input_obj_is_valid(input_obj)) {
+      XLOGD_ERROR("invalid obj");
+      return(false);
+   }
+   if(input_obj->xraudio_input_keyword_detector_reset == NULL) {
+      return(false);
+   }
+   return input_obj->xraudio_input_keyword_detector_reset();
+}
+
+
+
 bool xraudio_hal_thread_poll(void) {
    for(uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); index++) {
       const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
