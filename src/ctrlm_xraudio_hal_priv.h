@@ -39,6 +39,7 @@ typedef enum {
    XRAUDIO_STATE_CLOSED = 2
 } xraudio_state_t;
 
+typedef void                          (*xraudio_hal_input_init_t)(json_t *obj_config);
 typedef xraudio_hal_input_obj_t       (*xraudio_hal_input_open_t)(xraudio_input_format_t format, xraudio_device_input_configuration_t *configuration, json_t *obj_config);
 typedef void                          (*xraudio_hal_input_close_t)(void);
 typedef uint32_t                      (*xraudio_hal_input_buffer_size_get_t)(void);
@@ -69,6 +70,8 @@ typedef struct {
    int                                  fd;
    xraudio_input_format_t               format;
    xraudio_device_input_configuration_t configuration;
+   xraudio_hal_dsp_config_t             dsp_config;
+   xraudio_hal_input_init_t             xraudio_input_init;
    xraudio_hal_input_open_t             xraudio_input_open;
    xraudio_hal_input_close_t            xraudio_input_close;
    xraudio_hal_input_buffer_size_get_t  xraudio_input_buffer_size_get;

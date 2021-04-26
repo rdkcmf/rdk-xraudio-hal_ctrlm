@@ -47,6 +47,7 @@ static ctrlm_hal_input_obj_t g_rf4ce_ff = {
          .sample_size = 0,
          .channel_qty = 0
       },
+      .xraudio_input_init            = NULL,
       .xraudio_input_open            = rf4ce_ff_xraudio_hal_input_open,
       .xraudio_input_close           = rf4ce_ff_xraudio_hal_input_close,
       .xraudio_input_buffer_size_get = rf4ce_ff_xraudio_hal_input_buffer_size_get,

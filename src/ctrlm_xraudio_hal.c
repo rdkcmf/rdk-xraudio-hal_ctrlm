@@ -74,24 +74,7 @@ void xraudio_hal_version(xraudio_version_info_t *version_info, uint32_t *qty) {
    *qty -= qty_avail;
 }
 
-void xraudio_hal_capabilities_get(xraudio_hal_capabilities *caps) {
-   memset(caps, 0, sizeof(xraudio_hal_capabilities));
-   for(caps->input_qty = 0; caps->input_qty < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); caps->input_qty++) {
-      const ctrlm_hal_input_obj_t* obj = ctrlm_hal_input_objs[caps->input_qty]();
-      caps->input_caps[caps->input_qty] = obj->input_capabilities;
-      XLOGD_INFO("input <%u> capabilities <%s>", caps->input_qty, xraudio_capabilities_input_str(obj->input_capabilities));
-   }
-}
-
-xraudio_hal_obj_t xraudio_hal_open(bool debug, xraudio_power_mode_t power_mode, bool privacy_mode, xraudio_hal_msg_callback_t callback, json_t *obj_config) {
-   if(g_ctrlm_hal_obj.async_callback != NULL) {
-      XLOGD_ERROR("already open");
-      return(NULL);
-   }
-   g_ctrlm_hal_obj.debug          = debug;
-   g_ctrlm_hal_obj.power_mode     = power_mode;
-   g_ctrlm_hal_obj.privacy_mode   = privacy_mode;
-   g_ctrlm_hal_obj.async_callback = callback;
+bool xraudio_hal_init(json_t *obj_config) {
    g_ctrlm_hal_obj.obj_config_mic = NULL;
 
    // Parse config file
@@ -103,6 +86,70 @@ xraudio_hal_obj_t xraudio_hal_open(bool debug, xraudio_power_mode_t power_mode, 
          g_ctrlm_hal_obj.obj_config_mic = obj_mic;
       }
    }
+
+   // Init input devices
+   for (uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)); index++) {
+      const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
+      if (obj->xraudio_input_init != NULL) {
+         switch (obj->device) {
+            case CTRLM_HAL_INPUT_PTT:
+            case CTRLM_HAL_INPUT_FF:
+               break;
+            case CTRLM_HAL_INPUT_MICS:
+               obj->xraudio_input_init(g_ctrlm_hal_obj.obj_config_mic);
+               break;
+            case CTRLM_HAL_INPUT_INVALID:
+               break;
+         }
+      }
+   }
+
+   return(true);
+}
+
+void xraudio_hal_capabilities_get(xraudio_hal_capabilities *caps) {
+   memset(caps, 0, sizeof(xraudio_hal_capabilities));
+   for(caps->input_qty = 0; caps->input_qty < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); caps->input_qty++) {
+      const ctrlm_hal_input_obj_t* obj = ctrlm_hal_input_objs[caps->input_qty]();
+      caps->input_caps[caps->input_qty] = obj->input_capabilities;
+      XLOGD_INFO("input <%u> capabilities <%s>", caps->input_qty, xraudio_capabilities_input_str(obj->input_capabilities));
+   }
+}
+
+bool xraudio_hal_dsp_config_get(xraudio_hal_dsp_config_t *dsp_config) {
+   for (uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)); index++) {
+      const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
+      if (obj->device == CTRLM_HAL_INPUT_MICS) {
+         *dsp_config = obj->dsp_config;
+         return(true);
+      }
+   }
+   return(false);
+}
+
+bool xraudio_hal_available_devices_get(xraudio_devices_input_t *inputs, uint32_t input_qty_max, xraudio_devices_output_t *outputs, size_t output_qty_max) {
+   if (input_qty_max < sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)) {
+      XLOGD_ERROR("not enough space allocated for available inputs");
+      return(false);
+   }
+
+   for(uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); index++) {
+      const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
+      inputs[index] = obj->xraudio_device_type;
+   }
+   /* No output devices yet */
+   return(true);
+}
+
+xraudio_hal_obj_t xraudio_hal_open(bool debug, xraudio_power_mode_t power_mode, bool privacy_mode, xraudio_hal_msg_callback_t callback) {
+   if(g_ctrlm_hal_obj.async_callback != NULL) {
+      XLOGD_ERROR("already open");
+      return(NULL);
+   }
+   g_ctrlm_hal_obj.debug          = debug;
+   g_ctrlm_hal_obj.power_mode     = power_mode;
+   g_ctrlm_hal_obj.privacy_mode   = privacy_mode;
+   g_ctrlm_hal_obj.async_callback = callback;
 
    sem_init(&rf4ce_ptt_obj_get()->semaphore,   0, 1);
    sem_init(&rf4ce_ff_obj_get()->semaphore,    0, 1);
