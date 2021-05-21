@@ -353,6 +353,22 @@ bool xraudio_hal_input_mute(xraudio_hal_input_obj_t obj, xraudio_devices_input_t
    return input_obj->xraudio_input_mute(enable);
 }
 
+bool xraudio_hal_input_test_mode(xraudio_hal_input_obj_t obj, bool enable) {
+   if(obj == NULL) {
+      XLOGD_ERROR("NULL obj");
+      return(false);
+   }
+   ctrlm_hal_input_obj_t *input_obj = (ctrlm_hal_input_obj_t *)obj;
+   if(!ctrlm_xraudio_hal_input_obj_is_valid(input_obj)) {
+      XLOGD_ERROR("invalid obj");
+      return(false);
+   }
+   if(input_obj->xraudio_input_test_mode == NULL) {
+      return(true);
+   }
+   return input_obj->xraudio_input_test_mode(enable);
+}
+
 bool xraudio_hal_input_focus(xraudio_hal_input_obj_t obj, xraudio_sdf_mode_t mode) {
    if(obj == NULL) {
       XLOGD_ERROR("NULL obj");
