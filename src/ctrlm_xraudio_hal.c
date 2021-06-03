@@ -207,6 +207,26 @@ bool xraudio_hal_privacy_mode(xraudio_hal_obj_t object, bool enable) {
    return(result);
 }
 
+bool xraudio_hal_privacy_mode_get(xraudio_hal_obj_t object, bool *enabled) {
+   ctrlm_hal_global_obj_t *obj = (ctrlm_hal_global_obj_t *)object;
+   if(!ctrlm_xraudio_hal_global_obj_is_valid(obj)) {
+      XLOGD_ERROR("invalid object");
+      return(false);
+   }
+   bool result = true;
+
+   for(uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); index++) {
+      const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
+      if(obj->xraudio_input_privacy_mode_get != NULL) {
+         if(!obj->xraudio_input_privacy_mode_get(enabled)) {
+            result = false;
+         }
+      }
+   }
+
+   return result;
+}
+
 void xraudio_hal_close(xraudio_hal_obj_t object) {
    ctrlm_hal_global_obj_t *obj = (ctrlm_hal_global_obj_t *)object;
    if(!ctrlm_xraudio_hal_global_obj_is_valid(obj)) {
@@ -255,8 +275,6 @@ bool xraudio_hal_input_keyword_detector_reset(xraudio_hal_input_obj_t obj) {
    }
    return input_obj->xraudio_input_keyword_detector_reset();
 }
-
-
 
 bool xraudio_hal_thread_poll(void) {
    for(uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); index++) {

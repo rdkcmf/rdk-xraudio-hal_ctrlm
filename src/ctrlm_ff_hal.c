@@ -60,6 +60,7 @@ static ctrlm_hal_input_obj_t g_rf4ce_ff = {
       .xraudio_input_thread_poll            = NULL,
       .xraudio_input_power_mode             = NULL,
       .xraudio_input_privacy_mode           = NULL,
+      .xraudio_input_privacy_mode_get       = NULL,
       .xraudio_input_stream_start_set       = NULL,
       .xraudio_input_keyword_detector_reset = NULL,
       .xraudio_input_test_mode              = NULL,
