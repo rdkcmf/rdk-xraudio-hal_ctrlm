@@ -52,7 +52,7 @@ static bool ctrlm_xraudio_hal_input_obj_is_valid(ctrlm_hal_input_obj_t *obj);
 
 void xraudio_hal_version(xraudio_version_info_t *version_info, uint32_t *qty) {
    if(version_info == NULL || qty == NULL || *qty < 3) {
-      XLOGD_ERROR("invalid version params <%p> qty <%u>", version_info, qty);
+      XLOGD_ERROR("invalid version params <%p> qty <%p><%u>", version_info, qty, (qty == NULL) ? 0 : *qty);  //CID:167917 - printargs
       return;
    }
    uint32_t qty_avail = *qty;
