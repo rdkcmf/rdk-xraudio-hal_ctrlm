@@ -57,7 +57,6 @@ bool                     ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_o
 bool                     ctrlm_xraudio_hal_input_set_ctrlm_data_read_cb(ctrlm_hal_input_object_t object, ctrlm_data_read_cb_t callback, void *user_data);
 bool                     ctrlm_xraudio_hal_input_use_external_pipe(ctrlm_hal_input_object_t object, int fd);
 void                     ctrlm_xraudio_hal_input_close(ctrlm_hal_input_object_t object);
-
 #ifdef __cplusplus
 }
 #endif

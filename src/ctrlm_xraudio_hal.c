@@ -544,6 +544,7 @@ ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_session_req(const ctrlm_hal_inp
    XLOGD_ERROR("invalid device <%s>", xraudio_devices_input_str(input_params->device));
    return(NULL);
 }
+
 bool ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, const ctrlm_hal_input_params_t *input_params) {
    XLOGD_DEBUG("Enter...");
    if(NULL == g_ctrlm_hal_obj.async_callback) {
@@ -556,6 +557,13 @@ bool ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, cons
       session_begin.header.type   = XRAUDIO_MSG_TYPE_SESSION_BEGIN;
       session_begin.header.source = obj->xraudio_device_type;
       session_begin.format        = input_params->input_format;
+      if(obj->xraudio_input_stream_params_get != NULL) {
+         if(!obj->xraudio_input_stream_params_get(&session_begin.stream_params)) {
+            XLOGD_ERROR("failed to get stream params");
+            return(false);
+         }
+      }
+
       if(!g_ctrlm_hal_obj.async_callback((void *)&session_begin)) {
          XLOGD_ERROR("Unable to begin session");
          return(false);
@@ -564,6 +572,7 @@ bool ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, cons
    }
    return(false);
 }
+
 bool ctrlm_xraudio_hal_input_set_ctrlm_data_read_cb(ctrlm_hal_input_object_t object, ctrlm_data_read_cb_t callback, void *user_data) {
    XLOGD_DEBUG("Enter...");   
    ctrlm_hal_input_obj_t *obj = (ctrlm_hal_input_obj_t *)object;

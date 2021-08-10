@@ -67,6 +67,7 @@ static ctrlm_hal_input_obj_t g_rf4ce_ptt = {
    .xraudio_input_stream_start_set       = NULL,
    .xraudio_input_keyword_detector_reset = NULL,
    .xraudio_input_test_mode              = NULL,
+   .xraudio_input_stream_params_get      = NULL,
    .ctrlm_open                           = rf4ce_ptt_ctrlm_hal_open,
    .ctrlm_update_fd                      = rf4ce_ptt_ctrlm_hal_update_fd,
    .ctrlm_close                          = rf4ce_ptt_ctrlm_hal_close,

@@ -56,6 +56,7 @@ typedef bool                          (*xraudio_hal_input_privacy_mode_get_t)(bo
 typedef bool                          (*xraudio_hal_input_stream_start_set_t)(uint32_t start_sample);
 typedef bool                          (*xraudio_hal_input_keyword_detector_reset_t)(void);
 typedef bool                          (*xraudio_hal_input_test_mode_t)(bool enable);
+typedef bool                          (*xraudio_hal_input_stream_params_get_t)(xraudio_hal_stream_params_t *stream_params);
 
 typedef ctrlm_hal_input_object_t      (*ctrlm_input_hal_open_t)(const xraudio_input_format_t *format, int fd);
 typedef void                          (*ctrlm_input_hal_update_fd_t)(int fd);
@@ -92,6 +93,7 @@ typedef struct {
    xraudio_hal_input_stream_start_set_t       xraudio_input_stream_start_set;
    xraudio_hal_input_keyword_detector_reset_t xraudio_input_keyword_detector_reset;
    xraudio_hal_input_test_mode_t              xraudio_input_test_mode;
+   xraudio_hal_input_stream_params_get_t      xraudio_input_stream_params_get;
    ctrlm_input_hal_open_t                     ctrlm_open;
    ctrlm_input_hal_update_fd_t                ctrlm_update_fd;
    ctrlm_input_hal_close_t                    ctrlm_close;
