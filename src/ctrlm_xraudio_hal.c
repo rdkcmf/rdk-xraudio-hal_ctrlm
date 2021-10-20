@@ -240,7 +240,6 @@ void xraudio_hal_close(xraudio_hal_obj_t object) {
    obj->debug          = false;
    obj->power_mode     = XRAUDIO_POWER_MODE_INVALID;
    obj->async_callback = NULL;
-   obj->obj_config_mic = NULL;
 }
 
 bool xraudio_hal_input_stream_start_set(xraudio_hal_input_obj_t obj, uint32_t start_sample) {
