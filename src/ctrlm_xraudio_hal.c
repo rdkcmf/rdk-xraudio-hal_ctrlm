@@ -127,7 +127,7 @@ bool xraudio_hal_dsp_config_get(xraudio_hal_dsp_config_t *dsp_config) {
    return(false);
 }
 
-bool xraudio_hal_available_devices_get(xraudio_devices_input_t *inputs, uint32_t input_qty_max, xraudio_devices_output_t *outputs, size_t output_qty_max) {
+bool xraudio_hal_available_devices_get(xraudio_devices_input_t *inputs, uint32_t input_qty_max, xraudio_devices_output_t *outputs, uint32_t output_qty_max) {
    if (input_qty_max < sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)) {
       XLOGD_ERROR("not enough space allocated for available inputs");
       return(false);
