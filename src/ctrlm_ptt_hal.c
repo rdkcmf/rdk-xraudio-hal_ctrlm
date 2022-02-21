@@ -126,7 +126,7 @@ uint32_t rf4ce_ptt_xraudio_hal_input_buffer_size_get(void) {
 }
 
 int32_t rf4ce_ptt_xraudio_hal_input_read(uint8_t *data, uint32_t size, xraudio_eos_event_t *eos_event) {
-   if(g_rf4ce_ptt.format.encoding == XRAUDIO_ENCODING_OPUS_XVP) { // Some audio formats have variable length packets (OPUS).  To handle this, the packet size is prepended to each XVP packet
+   if(g_rf4ce_ptt.format.encoding == XRAUDIO_ENCODING_OPUS_XVP || g_rf4ce_ptt.format.encoding == XRAUDIO_ENCODING_OPUS) { // Some audio formats have variable length packets (OPUS).  To handle this, the packet size is prepended to each XVP packet
       uint8_t packet_size = 0xFF;
 
       errno = 0;
@@ -135,6 +135,9 @@ int32_t rf4ce_ptt_xraudio_hal_input_read(uint8_t *data, uint32_t size, xraudio_e
       if(rc < 0) {
          int errsv = errno;
          XLOGD_ERROR("pipe read error packet size <%s>", strerror(errsv));
+         return(-1);
+      } else if(rc == 0) {
+         XLOGD_WARN("pipe eof");
          return(-1);
       } else if(packet_size > size) {
          XLOGD_ERROR("invalid packet size <%u> max <%u>", packet_size, size);
