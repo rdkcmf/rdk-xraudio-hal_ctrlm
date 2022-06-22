@@ -552,11 +552,19 @@ bool ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, cons
    }
    ctrlm_hal_input_obj_t *obj  = (ctrlm_hal_input_obj_t *)object;
    if(obj) {
-      xraudio_hal_msg_session_begin_t   session_begin;
+      xraudio_hal_msg_session_begin_t session_begin;
+
+      memset(&session_begin, 0, sizeof(session_begin));
+
       session_begin.header.type   = XRAUDIO_MSG_TYPE_SESSION_BEGIN;
       session_begin.header.source = obj->xraudio_device_type;
       session_begin.format        = input_params->input_format;
-      if(obj->xraudio_input_stream_params_get != NULL) {
+
+      if(input_params->require_stream_params) {
+         if(obj->xraudio_input_stream_params_get == NULL) {
+            XLOGD_ERROR("stream params not supported on this input");
+            return(false);
+         }
          if(!obj->xraudio_input_stream_params_get(&session_begin.stream_params)) {
             XLOGD_ERROR("failed to get stream params");
             return(false);

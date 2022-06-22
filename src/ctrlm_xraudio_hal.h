@@ -38,6 +38,7 @@ typedef struct {
    ctrlm_hal_input_device_t device;
    xraudio_input_format_t   input_format;
    int                      fd;
+   bool                     require_stream_params;
 } ctrlm_hal_input_params_t;
 
 typedef struct {
