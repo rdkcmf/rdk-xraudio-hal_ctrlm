@@ -57,6 +57,7 @@ typedef bool                          (*xraudio_hal_input_stream_start_set_t)(ui
 typedef bool                          (*xraudio_hal_input_keyword_detector_reset_t)(void);
 typedef bool                          (*xraudio_hal_input_test_mode_t)(bool enable);
 typedef bool                          (*xraudio_hal_input_stream_params_get_t)(xraudio_hal_stream_params_t *stream_params);
+typedef bool                          (*xraudio_hal_input_stream_latency_set_t)(xraudio_stream_latency_mode_t latency_mode);
 
 typedef ctrlm_hal_input_object_t      (*ctrlm_input_hal_open_t)(const xraudio_input_format_t *format, int fd);
 typedef void                          (*ctrlm_input_hal_update_fd_t)(int fd);
@@ -94,6 +95,7 @@ typedef struct {
    xraudio_hal_input_keyword_detector_reset_t xraudio_input_keyword_detector_reset;
    xraudio_hal_input_test_mode_t              xraudio_input_test_mode;
    xraudio_hal_input_stream_params_get_t      xraudio_input_stream_params_get;
+   xraudio_hal_input_stream_latency_set_t     xraudio_input_stream_latency_set;
    ctrlm_input_hal_open_t                     ctrlm_open;
    ctrlm_input_hal_update_fd_t                ctrlm_update_fd;
    ctrlm_input_hal_close_t                    ctrlm_close;
@@ -101,6 +103,7 @@ typedef struct {
    ctrlm_input_hal_set_data_read_cb_t         ctrlm_set_data_read_cb;
    ctrlm_data_read_cb_t                       ctrlm_data_read_cb;
    void                                      *ctrlm_data_read_cb_user_data;
+
 } ctrlm_hal_input_obj_t;
 
 

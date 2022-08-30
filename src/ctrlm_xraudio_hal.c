@@ -450,6 +450,22 @@ bool xraudio_hal_input_eos_cmd(xraudio_hal_input_obj_t obj, xraudio_eos_cmd_t cm
    return input_obj->xraudio_input_eos_cmd(cmd, chan);
 }
 
+bool xraudio_hal_input_stream_latency_set(xraudio_hal_input_obj_t obj, xraudio_stream_latency_mode_t latency_mode) {
+   if(obj == NULL) {
+      XLOGD_ERROR("NULL obj");
+      return(false);
+   }
+   ctrlm_hal_input_obj_t *input_obj = (ctrlm_hal_input_obj_t *)obj;
+   if(!ctrlm_xraudio_hal_input_obj_is_valid(input_obj)) {
+      XLOGD_ERROR("invalid obj");
+      return(false);
+   }
+   if(input_obj->xraudio_input_stream_latency_set == NULL) {
+      return(false);
+   }
+   return input_obj->xraudio_input_stream_latency_set(latency_mode);
+}
+
 xraudio_hal_output_obj_t xraudio_hal_output_open(xraudio_hal_obj_t hal_obj, xraudio_devices_output_t device, xraudio_resource_id_output_t resource, uint8_t user_id, xraudio_output_format_t *format, xraudio_volume_step_t left, xraudio_volume_step_t right) {
    XLOGD_DEBUG("not implemented");
    return NULL;
