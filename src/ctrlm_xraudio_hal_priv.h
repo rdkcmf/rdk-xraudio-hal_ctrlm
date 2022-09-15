@@ -33,6 +33,8 @@
 
 #define CTRLM_XRAUDIO_HAL_SESSION_IDENTIFIER (0x89344187)
 
+#define CTRLM_XRAUDIO_HAL_DEVICE_QTY_MAX (2)
+
 typedef enum {
    XRAUDIO_STATE_INIT   = 0,
    XRAUDIO_STATE_OPEN   = 1,
@@ -73,7 +75,7 @@ typedef struct {
    uint16_t                                   input_capabilities;
    xraudio_state_t                            xraudio_state;
    bool                                       ctrlm_is_open;
-   ctrlm_hal_input_device_t                   device;
+   ctrlm_hal_input_device_t                   device[CTRLM_XRAUDIO_HAL_DEVICE_QTY_MAX];
    xraudio_devices_input_t                    xraudio_device_type;
    int                                        fd;
    xraudio_input_format_t                     format;

@@ -50,6 +50,9 @@ static ctrlm_hal_input_obj_get_t ctrlm_hal_input_objs[] = {
 static bool ctrlm_xraudio_hal_global_obj_is_valid(ctrlm_hal_global_obj_t *obj);
 static bool ctrlm_xraudio_hal_input_obj_is_valid(ctrlm_hal_input_obj_t *obj);
 
+static xraudio_devices_input_t ctrlm_hal_input_device_to_xraudio(const ctrlm_hal_input_obj_t *obj, ctrlm_hal_input_device_t device);
+static ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_session_req(const ctrlm_hal_input_params_t *input_params);
+
 void xraudio_hal_version(xraudio_version_info_t *version_info, uint32_t *qty) {
    if(version_info == NULL || qty == NULL || *qty < 3) {
       XLOGD_ERROR("invalid version params <%p> qty <%p><%u>", version_info, qty, (qty == NULL) ? 0 : *qty);  //CID:167917 - printargs
@@ -91,9 +94,10 @@ bool xraudio_hal_init(json_t *obj_config) {
    for (uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)); index++) {
       const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
       if (obj->xraudio_input_init != NULL) {
-         switch (obj->device) {
+         switch (obj->device[0]) {
             case CTRLM_HAL_INPUT_PTT:
             case CTRLM_HAL_INPUT_FF:
+            case CTRLM_HAL_INPUT_MIC_TAP:
                break;
             case CTRLM_HAL_INPUT_MICS:
                obj->xraudio_input_init(g_ctrlm_hal_obj.obj_config_mic);
@@ -119,7 +123,7 @@ void xraudio_hal_capabilities_get(xraudio_hal_capabilities *caps) {
 bool xraudio_hal_dsp_config_get(xraudio_hal_dsp_config_t *dsp_config) {
    for (uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs)/sizeof(ctrlm_hal_input_obj_get_t)); index++) {
       const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
-      if (obj->device == CTRLM_HAL_INPUT_MICS) {
+      if (obj->device[0] == CTRLM_HAL_INPUT_MICS) {
          *dsp_config = obj->dsp_config;
          return(true);
       }
@@ -518,7 +522,7 @@ ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_open(const ctrlm_hal_input_para
    XLOGD_DEBUG("Enter...");
    ctrlm_hal_input_object_t object = NULL;
    if (NULL != (object = ctrlm_xraudio_hal_input_session_req(input_params))) {
-      if (false == ctrlm_xraudio_hal_input_session_begin(object, input_params)) {
+      if (input_params->begin_session && false == ctrlm_xraudio_hal_input_session_begin(object, input_params)) {
          XLOGD_ERROR("Unable to begin session, closing");
          ((ctrlm_hal_input_obj_t *)object)->ctrlm_close(false);
          object = NULL;
@@ -534,7 +538,7 @@ ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_session_req(const ctrlm_hal_inp
    }
    for(uint32_t index = 0; index < (sizeof(ctrlm_hal_input_objs) / sizeof(ctrlm_hal_input_obj_get_t)); index++) {
       const ctrlm_hal_input_obj_t *obj = ctrlm_hal_input_objs[index]();
-      if(obj->device != input_params->device) {
+      if(obj->device[0] != input_params->device && obj->device[1] != input_params->device) {
          continue;
       }
       if(obj->ctrlm_open == NULL || obj->ctrlm_close == NULL) {
@@ -548,7 +552,7 @@ ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_session_req(const ctrlm_hal_inp
       }
 
       session_request.header.type   = XRAUDIO_MSG_TYPE_SESSION_REQUEST;
-      session_request.header.source = obj->xraudio_device_type;
+      session_request.header.source = ctrlm_hal_input_device_to_xraudio(obj, input_params->device);
       if(!g_ctrlm_hal_obj.async_callback((void *)&session_request)) {
          XLOGD_ERROR("Unable to acquire session");
          obj->ctrlm_close(false);
@@ -573,7 +577,7 @@ bool ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, cons
       memset(&session_begin, 0, sizeof(session_begin));
 
       session_begin.header.type   = XRAUDIO_MSG_TYPE_SESSION_BEGIN;
-      session_begin.header.source = obj->xraudio_device_type;
+      session_begin.header.source = ctrlm_hal_input_device_to_xraudio(obj, input_params->device);;
       session_begin.format        = input_params->input_format;
 
       if(input_params->require_stream_params) {
@@ -645,4 +649,15 @@ void ctrlm_xraudio_hal_input_close(ctrlm_hal_input_object_t object) {
 
 xraudio_hal_msg_callback_t xraudio_hal_async_callback_get() {
    return(g_ctrlm_hal_obj.async_callback);
+}
+
+xraudio_devices_input_t ctrlm_hal_input_device_to_xraudio(const ctrlm_hal_input_obj_t *obj, ctrlm_hal_input_device_t device) {
+   switch(device) {
+      case CTRLM_HAL_INPUT_PTT:     { return(obj->xraudio_device_type); }
+      case CTRLM_HAL_INPUT_FF:      { return(obj->xraudio_device_type); }
+      case CTRLM_HAL_INPUT_MICS:    { return(obj->xraudio_device_type); }
+      case CTRLM_HAL_INPUT_MIC_TAP: { return(XRAUDIO_DEVICE_INPUT_MIC_TAP); }
+      case CTRLM_HAL_INPUT_INVALID: { break; }
+   }
+   return(XRAUDIO_DEVICE_INPUT_NONE);
 }

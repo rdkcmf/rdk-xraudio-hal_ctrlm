@@ -31,6 +31,7 @@ typedef enum {
    CTRLM_HAL_INPUT_PTT,
    CTRLM_HAL_INPUT_FF,
    CTRLM_HAL_INPUT_MICS,
+   CTRLM_HAL_INPUT_MIC_TAP,
    CTRLM_HAL_INPUT_INVALID
 } ctrlm_hal_input_device_t;
 
@@ -39,6 +40,7 @@ typedef struct {
    xraudio_input_format_t   input_format;
    int                      fd;
    bool                     require_stream_params;
+   bool                     begin_session;
 } ctrlm_hal_input_params_t;
 
 typedef struct {
@@ -53,7 +55,6 @@ extern "C" {
 #endif
 
 ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_open(const ctrlm_hal_input_params_t *params);
-ctrlm_hal_input_object_t ctrlm_xraudio_hal_input_session_req(const ctrlm_hal_input_params_t *params);
 bool                     ctrlm_xraudio_hal_input_session_begin(ctrlm_hal_input_object_t object, const ctrlm_hal_input_params_t *input_params);
 bool                     ctrlm_xraudio_hal_input_set_ctrlm_data_read_cb(ctrlm_hal_input_object_t object, ctrlm_data_read_cb_t callback, void *user_data);
 bool                     ctrlm_xraudio_hal_input_use_external_pipe(ctrlm_hal_input_object_t object, int fd);
